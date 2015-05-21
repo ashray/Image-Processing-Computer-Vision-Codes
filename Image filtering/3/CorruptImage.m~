@@ -1,0 +1,6 @@
+%% Corrupt the image with noise
+% 
+%%
+function [imageOut]=CorruptImage(imageIn,percentageInten)
+    imageO=normalise(0.05*256*randn(length(inputImage))+inputImage,255);
+end

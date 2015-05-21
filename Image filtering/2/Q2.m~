@@ -1,0 +1,58 @@
+%% Q2-CS 663 Assignment 2 Bilateral filtering
+
+%% Code explanation
+% 3d convolution 
+% since gaussian is separable the convolution will be separated out into
+% convolution over x, over y and then over Intensity dimension
+% could not vectorise the 'expansion of 2d space into 3d space'
+%%
+
+function [filteredImage]=Q2(inputImage)
+    mean=[0 0 0];
+    sigmaSpace=20;
+    sigmaIntensity=3;    
+    sFilter=13;%size of Filter
+    inputImage=normalise(inputImage,255);
+    
+    x=1:size(inputImage,2);
+    y=1:size(inputImage,1);
+    I=1:256;
+    
+    noisyImage=uint8(normalise(0.05*256*randn(length(inputImage))+inputImage,255));
+    DisplayImage(noisyImage);
+    
+    spatioIntensitySpace=zeros(length(x),length(y),length(I));    
+    for i=1:size(noisyImage,2)
+        for j=1:size(noisyImage,1)
+            spatioIntensitySpace(i,j,noisyImage(i,j)+1)=noisyImage(i,j);
+        end
+    end    
+    
+    vertFiltered=imfilter(double(spatioIntensitySpace),reshape(fspecial('gaussian',[sFilter 1],sigmaSpace),[sFilter 1 1 ]),'conv');
+    horiFiltered=imfilter(vertFiltered,reshape(fspecial('gaussian',[1 sFilter],sigmaSpace),[1 sFilter 1]),'conv');
+    intenFiltered=imfilter(horiFiltered,reshape(fspecial('gaussian',[sFilter 1],sigmaIntensity),[1 1 sFilter]),'conv');
+    %gaussFilter=mvnpdf(spatioIntensitySpace,mean,stdDeviation);    
+    
+    weightSpace=zeros(length(x),length(y),length(I));    
+    for i=1:size(noisyImage,2)
+        for j=1:size(noisyImage,1)
+            weightSpace(i,j,noisyImage(i,j)+1)=255.0;
+        end
+    end    
+    
+    weightVFilt=imfilter(double(weightSpace),reshape(fspecial('gaussian',[sFilter 1],sigmaSpace),[sFilter 1 1 ]),'conv');
+    weightHFilt=imfilter(weightVFilt,reshape(fspecial('gaussian',[1 sFilter],sigmaSpace),[1 sFilter 1]),'conv');
+    weightIFilt=imfilter(weightHFilt,reshape(fspecial('gaussian',[sFilter 1],sigmaIntensity),[1 1 sFilter]),'conv');
+    
+    dividedByWeights=intenFiltered./weightIFilt;
+    
+    filteredImage=zeros(size(noisyImage));
+    for i=1:size(noisyImage,2)
+        for j=1:size(noisyImage,1)
+            filteredImage(i,j)=dividedByWeights(i,j,noisyImage(i,j)+1);
+        end
+    end    
+        
+    filteredImage=normalise(filteredImage,1.0);
+    DisplayImage(filteredImage);
+end

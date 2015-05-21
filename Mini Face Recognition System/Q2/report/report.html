@@ -1,0 +1,504 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>q2</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-10-03"><meta name="DC.source" content="q2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Q2 : For the ORL face database</a></li><li><a href="#2">Q2 : For the yale face database</a></li></ul></div><h2>Q2 : For the ORL face database<a name="1"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+close <span class="string">all</span>
+X_original=zeros(10304,175);
+Xmean=zeros(10304,1);
+
+<span class="keyword">for</span> i=1:35
+    a=strcat(<span class="string">'s'</span>,num2str(i));
+    a=strcat(a,<span class="string">'/'</span>);
+    <span class="keyword">for</span> j=1:5
+        b=strcat(a,num2str(j));
+        b=strcat(b,<span class="string">'.pgm'</span>);
+        y=imread(b);
+        y=double(y);
+        X_original(:,(5*(i-1)+j))=y(:); <span class="comment">%Read the image vectors into the columns of this matrix</span>
+        c=y(:);
+        Xmean=Xmean+c;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+Xmean = Xmean/175;
+Xmeanmatrix = repmat(Xmean,1,175);
+
+X_meansubtracted = X_original - Xmeanmatrix; <span class="comment">%Subtract mean from each of the image vectors</span>
+
+L = X_meansubtracted.' * X_meansubtracted;
+k_values=[1; 2; 3; 5; 10; 20; 30; 50; 75; 100; 125; 150; 170];
+Ncorrect=zeros(13,1);
+Nfalse=zeros(13,1);
+<span class="keyword">for</span> index=1:13
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         <span class="comment">%We now have the normalised eigenspace of the covariance matrix.</span>
+    alpha = V.' * X_meansubtracted; <span class="comment">%alpha matrix stores the components for each of the gallery images</span>
+    <span class="keyword">for</span> i=1:35
+        a=strcat(<span class="string">'s'</span>,num2str(i));
+        a=strcat(a,<span class="string">'/'</span>);
+        <span class="keyword">for</span> j=6:10
+            b=strcat(a,num2str(j));
+            b=strcat(b,<span class="string">'.pgm'</span>);
+            y=imread(b);
+            y=double(y);
+            y=y(:);
+            y=y-Xmean;
+            alpha_test = V.' * y; <span class="comment">%Components of the test image</span>
+            <span class="comment">%Now we find the gallery image with minimum norm difference in</span>
+            <span class="comment">%the principal components (alpha variables)</span>
+            match = 1;
+            match = uint8(match);
+            diff_vector = alpha_test - alpha(:,1);
+            diff = norm(diff_vector);
+            min = diff;
+            <span class="keyword">for</span> l=2:175
+                diff_vector = alpha_test - alpha(:,l);
+                diff = norm(diff_vector);
+                <span class="keyword">if</span> diff&lt;min
+                    match=l;
+                    min=diff;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> match&gt;5*(i-1) &amp;&amp; match&lt;=5*i
+                Ncorrect(index)=Ncorrect(index)+1;
+            <span class="keyword">else</span>
+                Nfalse(index)=Nfalse(index)+1;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">%The vectors Ncorrect and Nfalse store the number of correct and false</span>
+<span class="comment">%identifications for each of the 13 values of k.</span>
+RecognitionRate=zeros(13,1);
+RecognitionRate=Ncorrect./175.*100;
+RecognitionRate
+
+<span class="comment">% The recognition rates for the given 13 values of k in increasing order</span>
+<span class="comment">% are given below : -</span>
+</pre><pre class="codeoutput">
+RecognitionRate =
+
+    9.7143
+   35.4286
+   58.2857
+   70.8571
+   85.7143
+   89.1429
+   90.8571
+   91.4286
+   91.4286
+   91.4286
+   91.4286
+   92.0000
+   91.4286
+
+</pre><h2>Q2 : For the yale face database<a name="2"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+close <span class="string">all</span>
+X_original=zeros(32256,76);
+Xmean=zeros(32256,1);
+
+<span class="keyword">for</span> i=1:9
+    a=strcat(<span class="string">'0'</span>,num2str(i));
+    a=strcat(a,<span class="string">'/'</span>);
+    <span class="keyword">for</span> j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,<span class="string">'.pgm'</span>);
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-1)+j))=y(:); <span class="comment">%Read the image vectors into the columns of this matrix</span>
+        c=y(:);
+        Xmean=Xmean+c;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i=10:13
+    a=num2str(i);
+    a=strcat(a,<span class="string">'/'</span>);
+    <span class="keyword">for</span> j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,<span class="string">'.pgm'</span>);
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-1)+j))=y(:); <span class="comment">%Read the image vectors into the columns of this matrix</span>
+        c=y(:);
+        Xmean=Xmean+c;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> i=15:39
+    a=num2str(i);
+    a=strcat(a,<span class="string">'/'</span>);
+    <span class="keyword">for</span> j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,<span class="string">'.pgm'</span>);
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-2)+j))=y(:); <span class="comment">%Read the image vectors into the columns of this matrix</span>
+        c=y(:);
+        Xmean=Xmean+c;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+Xmean = Xmean/76;
+Xmeanmatrix = repmat(Xmean,1,76);
+
+X_meansubtracted = X_original - Xmeanmatrix; <span class="comment">%Subtract mean from each of the image vectors</span>
+
+L = X_meansubtracted.' * X_meansubtracted;
+
+k_values=[1; 2; 3; 5; 10; 20; 30; 50; 60; 65; 75];
+Ncorrect=zeros(11,1);
+Nfalse=zeros(11,1);
+<span class="keyword">for</span> index=1:11
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         <span class="comment">%We now have the normalised eigenspace of the covariance matrix.</span>
+    alpha = V.' * X_meansubtracted; <span class="comment">%alpha matrix stores the components for each of the gallery images</span>
+    <span class="keyword">for</span> i=1:39
+        <span class="keyword">if</span> i==14
+            <span class="keyword">continue</span>;
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> i&lt;=9
+            a=strcat(<span class="string">'0'</span>,num2str(i));
+            a=strcat(a,<span class="string">'/'</span>);
+        <span class="keyword">else</span>
+            a=num2str(i);
+            a=strcat(a,<span class="string">'/'</span>);
+        <span class="keyword">end</span>
+        <span class="keyword">for</span> j=3:5
+            b=strcat(a,num2str(j));
+            b=strcat(b,<span class="string">'.pgm'</span>);
+            y=imread(b);
+            y=double(y);
+            y=y(:);
+            y=y-Xmean;
+            alpha_test = V.' * y; <span class="comment">%Components of the test image</span>
+            <span class="comment">%Now we find the gallery image with minimum norm difference in</span>
+            <span class="comment">%the principal components (alpha variables)</span>
+            match = 1;
+            match = uint8(match);
+            diff_vector = alpha_test - alpha(:,1);
+            diff = norm(diff_vector);
+            min = diff;
+            <span class="keyword">for</span> l=2:76
+                diff_vector = alpha_test - alpha(:,l);
+                diff = norm(diff_vector);
+                <span class="keyword">if</span> diff&lt;min
+                    match=l;
+                    min=diff;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> i&lt;=13
+                <span class="keyword">if</span> match&gt;2*(i-1) &amp;&amp; match&lt;=5*i
+                    Ncorrect(index)=Ncorrect(index)+1;
+                <span class="keyword">else</span>
+                    Nfalse(index)=Nfalse(index)+1;
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                <span class="keyword">if</span> match&gt;2*(i-2) &amp;&amp; match&lt;=5*(i-1)
+                    Ncorrect(index)=Ncorrect(index)+1;
+                <span class="keyword">else</span>
+                    Nfalse(index)=Nfalse(index)+1;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">%The vectors Ncorrect and Nfalse store the number of correct and false</span>
+<span class="comment">%identifications for each of the 11 values of k.</span>
+RecognitionRate=zeros(11,1);
+RecognitionRate=Ncorrect./114.*100;
+RecognitionRate
+
+<span class="comment">% The recognition rates for the given 11 values of k in increasing order</span>
+<span class="comment">% are given below : -</span>
+</pre><pre class="codeoutput">
+RecognitionRate =
+
+   43.8596
+   52.6316
+   55.2632
+   72.8070
+   91.2281
+  100.0000
+  100.0000
+  100.0000
+  100.0000
+  100.0000
+  100.0000
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Q2 : For the ORL face database
+
+clear all
+close all
+X_original=zeros(10304,175);
+Xmean=zeros(10304,1);
+
+for i=1:35
+    a=strcat('s',num2str(i));
+    a=strcat(a,'/');
+    for j=1:5
+        b=strcat(a,num2str(j));
+        b=strcat(b,'.pgm');
+        y=imread(b);
+        y=double(y);
+        X_original(:,(5*(i-1)+j))=y(:); %Read the image vectors into the columns of this matrix
+        c=y(:);
+        Xmean=Xmean+c;
+    end
+end
+
+Xmean = Xmean/175;
+Xmeanmatrix = repmat(Xmean,1,175);
+
+X_meansubtracted = X_original - Xmeanmatrix; %Subtract mean from each of the image vectors
+
+L = X_meansubtracted.' * X_meansubtracted;
+k_values=[1; 2; 3; 5; 10; 20; 30; 50; 75; 100; 125; 150; 170];
+Ncorrect=zeros(13,1);
+Nfalse=zeros(13,1);
+for index=1:13
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         %We now have the normalised eigenspace of the covariance matrix.
+    alpha = V.' * X_meansubtracted; %alpha matrix stores the components for each of the gallery images
+    for i=1:35
+        a=strcat('s',num2str(i));
+        a=strcat(a,'/');
+        for j=6:10
+            b=strcat(a,num2str(j));
+            b=strcat(b,'.pgm');
+            y=imread(b);
+            y=double(y);
+            y=y(:);
+            y=y-Xmean;
+            alpha_test = V.' * y; %Components of the test image
+            %Now we find the gallery image with minimum norm difference in 
+            %the principal components (alpha variables)
+            match = 1;
+            match = uint8(match);
+            diff_vector = alpha_test - alpha(:,1);
+            diff = norm(diff_vector);
+            min = diff;
+            for l=2:175
+                diff_vector = alpha_test - alpha(:,l);
+                diff = norm(diff_vector);
+                if diff<min
+                    match=l;
+                    min=diff;
+                end
+            end
+            if match>5*(i-1) && match<=5*i
+                Ncorrect(index)=Ncorrect(index)+1;
+            else
+                Nfalse(index)=Nfalse(index)+1;
+            end
+        end
+    end
+end
+%The vectors Ncorrect and Nfalse store the number of correct and false
+%identifications for each of the 13 values of k.
+RecognitionRate=zeros(13,1);
+RecognitionRate=Ncorrect./175.*100;
+RecognitionRate
+
+% The recognition rates for the given 13 values of k in increasing order
+% are given below : -
+
+%% Q2 : For the yale face database
+
+clear all
+close all
+X_original=zeros(32256,76);
+Xmean=zeros(32256,1);
+
+for i=1:9
+    a=strcat('0',num2str(i));
+    a=strcat(a,'/');
+    for j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,'.pgm');
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-1)+j))=y(:); %Read the image vectors into the columns of this matrix
+        c=y(:);
+        Xmean=Xmean+c;
+    end
+end
+
+for i=10:13
+    a=num2str(i);
+    a=strcat(a,'/');
+    for j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,'.pgm');
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-1)+j))=y(:); %Read the image vectors into the columns of this matrix
+        c=y(:);
+        Xmean=Xmean+c;
+    end
+end
+
+for i=15:39
+    a=num2str(i);
+    a=strcat(a,'/');
+    for j=1:2
+        b=strcat(a,num2str(j));
+        b=strcat(b,'.pgm');
+        y=imread(b);
+        y=double(y);
+        X_original(:,(2*(i-2)+j))=y(:); %Read the image vectors into the columns of this matrix
+        c=y(:);
+        Xmean=Xmean+c;
+    end
+end
+
+
+Xmean = Xmean/76;
+Xmeanmatrix = repmat(Xmean,1,76);
+
+X_meansubtracted = X_original - Xmeanmatrix; %Subtract mean from each of the image vectors
+
+L = X_meansubtracted.' * X_meansubtracted;
+
+k_values=[1; 2; 3; 5; 10; 20; 30; 50; 60; 65; 75];
+Ncorrect=zeros(11,1);
+Nfalse=zeros(11,1);
+for index=1:11
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         %We now have the normalised eigenspace of the covariance matrix.
+    alpha = V.' * X_meansubtracted; %alpha matrix stores the components for each of the gallery images
+    for i=1:39
+        if i==14 
+            continue;
+        end
+        if i<=9
+            a=strcat('0',num2str(i));
+            a=strcat(a,'/');
+        else
+            a=num2str(i);
+            a=strcat(a,'/');
+        end
+        for j=3:5
+            b=strcat(a,num2str(j));
+            b=strcat(b,'.pgm');
+            y=imread(b);
+            y=double(y);
+            y=y(:);
+            y=y-Xmean;
+            alpha_test = V.' * y; %Components of the test image
+            %Now we find the gallery image with minimum norm difference in 
+            %the principal components (alpha variables)
+            match = 1;
+            match = uint8(match);
+            diff_vector = alpha_test - alpha(:,1);
+            diff = norm(diff_vector);
+            min = diff;
+            for l=2:76
+                diff_vector = alpha_test - alpha(:,l);
+                diff = norm(diff_vector);
+                if diff<min
+                    match=l;
+                    min=diff;
+                end
+            end
+            if i<=13
+                if match>2*(i-1) && match<=5*i
+                    Ncorrect(index)=Ncorrect(index)+1;
+                else
+                    Nfalse(index)=Nfalse(index)+1;
+                end
+            else
+                if match>2*(i-2) && match<=5*(i-1)
+                    Ncorrect(index)=Ncorrect(index)+1;
+                else
+                    Nfalse(index)=Nfalse(index)+1;
+                end
+            end
+        end
+    end
+end
+%The vectors Ncorrect and Nfalse store the number of correct and false
+%identifications for each of the 11 values of k.
+RecognitionRate=zeros(11,1);
+RecognitionRate=Ncorrect./114.*100;
+RecognitionRate
+
+% The recognition rates for the given 11 values of k in increasing order
+% are given below : -
+##### SOURCE END #####
+--></body></html>

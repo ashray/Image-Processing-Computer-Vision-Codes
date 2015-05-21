@@ -1,0 +1,39 @@
+function [ fig ] = DisplayImage(ImageMat, varargin)
+%DISPLAYIMAGE Summary of this function goes here
+%   Detailed explanation goes here
+	withCbar = true;
+	withAxes = true;
+		
+	if length(varargin) >= 2
+		if strcmpi(varargin{1}, 'axes')
+			withAxes = varargin{2};
+		elseif strcmpi(varargin{1}, 'cbar')
+			withCbar = varargin{2};
+		end
+	end
+	if length(varargin) >= 4
+		if strcmpi(varargin{3}, 'axes')
+			withAxes = varargin{4};
+		elseif strcmpi(varargin{3}, 'cbar')
+			withCbar = varargin{2};
+		end
+	end
+	
+	fig = figure;
+	
+	imshow(ImageMat, 'Border', 'Tight');
+	if ndims(ImageMat) == 2 && withCbar
+		colorbar;
+	end
+	h = gca();
+	set(h, 'Units', 'pixels');
+	set(h, 'Position', [50 50 size(ImageMat, 2) size(ImageMat, 1)]);
+	if withAxes
+		set(h, 'Visible', 'on');
+    end
+    
+	set(fig, 'Units', 'pixels');
+    disp('set output sta');    
+	set(fig, 'Position', [0, 50, size(ImageMat, 2) + 125, size(ImageMat, 1) + 100])
+
+end

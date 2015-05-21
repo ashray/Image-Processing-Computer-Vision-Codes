@@ -1,0 +1,93 @@
+%% Q3 Assignment 2 CS 663 
+%% Patch Based Filtering
+% we first generate a 4d matrix containing the patches for each pixel and
+% then compute the disatances between patches
+% sigma4gaussPatch= std deviation for the gassian for the patch to make it
+% isotropic.
+% image is zero padded so that the patch can go outside the image when the
+% pixel lies on the edge or on the corner. Couldn't vectorise the saving of
+% the patches in |patchesEveryPixel| matrix. As it seems a 2d array cannot
+% be directly extracted from a 4d array, a function called |squeeze| is
+% essential. I wish i could have computed the output of gaussian weighting
+% of patches and giving new value to our center pixel, but i guess it will
+% have a lot of overhead. The patches are stored in planes and the actual
+% pixel locations is a 2d vector, so the multidimensional array planes is
+% actually a matrix of planes, where planes are the patches.
+% (ref:http://www.mathworks.in/help/matlab/math/multidimensional-arrays.html#f1-87200)
+% Also assumed that patch length and window length are odd. dont know what
+% will happen if they are even. 
+% Also one problem is that if size of patches4Com
+% preallocated then we cant effectively subtracts the patch for the center
+% pixel from all the patches, since some of the patches corresponding to
+% outside the image will be 0 and we will essentially subtract a non zero
+% value from a zero value. This will be a problem because later on we are
+% squaring it.
+% assigning values to patches4Com was the most difficult to code without
+% instantiating a new array.
+% I realised that we do not need a gaussian filter for weighting the
+% patches in the window but we need a gaussian function.
+% patchWeights contains only those weights for which the center point of 
+% the patch was inside the image. patchWeights could not be normalised.
+
+% patches4Com = save patches temporarily for computation purposes of
+% distances.
+% sigma4PsInWindow = sigma for gaussian, for patches in window.
+% findNonZero = logical array to find which of the patches are non zero.
+% convention for naming: variables and functions in camelcase, variables 
+% start with lowercase and functions start with uppercase
+%% To be done
+% Make the program memory efficient. allocate the bigger vectors before the
+% smaller vectors. Try if batch processing is possible.
+%% 
+function [imageOut]=PatchFilter(imageIn)
+    windowLength=25;
+    patchLength=9;
+    sigma4GaussPatch=0.5;
+    sigma4Window=2;
+    border=floor(patchLength/2);        
+    imageOut=zeros(size(imageIn));
+    
+    paddedImage=padImage(imageIn,border);
+    imshow(normalise(fspecial('gaussian',[patchLength patchLength],sigma4GaussPatch),1));    
+    
+    %multiply patches by gaussian an
+    patchesEveryPixel=zeros(size(imageIn,1),size(imageIn,2),patchLength,patchLength);
+    for columnNo=1:size(patchesEveryPixel,1)
+        for rowNo=1:size(patchesEveryPixel,2)
+            patchesEveryPixel(:,:,rowNo,columnNo)=paddedImage(rowNo:rowNo+patchLength-1,columnNo:columnNo+patchLength-1)...
+                .*fspecial('gaussian',[patchLength patchLength],sigma4GaussPatch);
+        end    
+    end       
+          
+    clear paddedImage;
+    
+    patches4Com=zeros(patchLength,patchLength,windowLength,windowLength);
+    subtractPatches=zeros(patchLength,patchLength,windowLength,windowLength);
+    findNonZero=zeros(patchLength,patchLength,windowLength,windowLength);
+    patchDistances=zeros(1,1,windowLength,windowLength);
+    mainPatch=zeros(patchLength,patchLength);
+    %gaussFilter=fspecial('gaussian',[windowLength windowLength],sigma4window);
+    
+    for columnNo=1:size(patchesEveryPixel,1)
+        for rowNo=1:size(patchesEveryPixel,2)
+            [rNeigh,cNeigh]=findNeighbouringIndices(size(imageIn),[rowNo columnNo],windowLength);
+            patches4Com(:,:,:,:)=zeros(patchLength,patchLength,windowLength,windowLength);%so that previous values do not remain
+                        
+            mainPatch(:,:)=patchesEveryPixel(:,:,rowNo,columnNo);
+            rowStart=rowNo-border-rNeigh(1)+1;
+            rowEnd=windowLength-rowNo+border-rNeigh(end);
+            colStart=rowNo-border-rNeigh(1)+1;
+            colEnd=windowLength-rowNo+border-rNeigh(end);
+            patches4Com(:,:,rowStart:rowEnd,colStart:colEnd)=patchesEveryPixel(:,:,rNeigh,cNeigh);
+            %patches4Com=patchesEveryPixel(:,:,rNeigh,cNeigh);
+            findNonZero(:,:)=patches4Com>0;
+            
+            subtractPatches(:,:)=bsxfun(@minus,patches4Com,mainPatch);
+            patchDistances(:,:)=squeeze(sum(sum(...
+                ((subtractPatches.*subtractPatches).*findNonZero)...
+                ,1),2));            
+            patchWeights=normpdf(patchDistances(rowStart:rowEnd,colStart:colEnd),0,sigma4Window);
+            imageOut(rowNo,columnNo)=sum(sum(imageIn(rNeigh,cNeigh).*patchWeights))/sum(sum(patchWeights));
+        end    
+    end        
+end

@@ -1,0 +1,221 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Q3 : Reconstruction of the first face s1/1.pgm the ORL face database</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-10-03"><meta name="DC.source" content="q3.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Q3 : Reconstruction of the first face s1/1.pgm the ORL face database</h1><pre class="codeinput"><span class="comment">% We perform the reconstruction of the 1st face in the ORL database using</span>
+<span class="comment">% different number of eigenfaces. We observe that as we increase k, we get</span>
+<span class="comment">% finer/high frequency details in our faces to be visible. Also the images</span>
+<span class="comment">% for k=150 &amp; 175 are virtually indistinguishable</span>
+<span class="comment">% Regarding the eigenfaces and their fourier magnitude plots, we observe</span>
+<span class="comment">% that the larger eigenvalue eigenfaces have low frequencies as their</span>
+<span class="comment">% dominant frequencies(we see the bold vertical and horizontal lines in the</span>
+<span class="comment">% centre), and as we go to lower eigenvalues (from LEFT to RIGHT, TOP to</span>
+<span class="comment">% BOTTOM), higher frequency components come into the picture and the plot</span>
+<span class="comment">% becomes lighter and lighter due to these</span>
+
+clear <span class="string">all</span>
+close <span class="string">all</span>
+X_original=zeros(10304,175);
+Xmean=zeros(10304,1);
+
+<span class="keyword">for</span> i=1:35
+    a=strcat(<span class="string">'s'</span>,num2str(i));
+    a=strcat(a,<span class="string">'/'</span>);
+    <span class="keyword">for</span> j=1:5
+        b=strcat(a,num2str(j));
+        b=strcat(b,<span class="string">'.pgm'</span>);
+        y=imread(b);
+        y=double(y);
+        X_original(:,(5*(i-1)+j))=y(:); <span class="comment">%Read the image vectors into the columns of this matrix</span>
+        c=y(:);
+        Xmean=Xmean+c;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+Xmean = Xmean/175;
+Xmeanmatrix = repmat(Xmean,1,175);
+
+X_meansubtracted = X_original - Xmeanmatrix; <span class="comment">%Subtract mean from each of the image vectors</span>
+
+L = X_meansubtracted.' * X_meansubtracted;
+k_values = [2; 10; 20; 50; 75; 100; 125; 150; 175];
+figure;
+<span class="keyword">for</span> index=1:9
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         <span class="comment">%We now have the normalised eigenspace of the covariance matrix.</span>
+    alpha = V.' * X_meansubtracted(:,1); <span class="comment">%alpha matrix stores the components for the 1st face</span>
+    out = V*alpha;
+    out = out + Xmean;
+    out = reshape(out,112,92);
+    out=uint8(out);
+    subplot(3,3,index);
+    imshow(out);
+<span class="keyword">end</span>
+
+<span class="comment">%We now plot the eigenfaces for k=25</span>
+[V_intermediate,D]=eigs(L,25);
+V = X_meansubtracted * V_intermediate;
+figure;
+
+<span class="keyword">for</span> i=1:25
+    subplot(5,5,i);
+    imshow(reshape(mat2gray(V(:,i)),112,92));
+<span class="keyword">end</span>
+
+
+figure;
+<span class="keyword">for</span> i=1:25
+    subplot(5,5,i);
+    U=fft2(reshape((V(:,i)),112,92));
+    U=fftshift(U);
+    U=abs(U);
+    U=log(1+U);
+    U=mat2gray(U);
+    imshow(U);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Warning: For real symmetric problems, must have number of eigenvalues k &lt; n.
+ Using eig instead. 
+</pre><img vspace="5" hspace="5" src="q3_01.png" alt=""> <img vspace="5" hspace="5" src="q3_02.png" alt=""> <img vspace="5" hspace="5" src="q3_03.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Q3 : Reconstruction of the first face s1/1.pgm the ORL face database
+
+% We perform the reconstruction of the 1st face in the ORL database using
+% different number of eigenfaces. We observe that as we increase k, we get
+% finer/high frequency details in our faces to be visible. Also the images
+% for k=150 & 175 are virtually indistinguishable
+% Regarding the eigenfaces and their fourier magnitude plots, we observe
+% that the larger eigenvalue eigenfaces have low frequencies as their
+% dominant frequencies(we see the bold vertical and horizontal lines in the 
+% centre), and as we go to lower eigenvalues (from LEFT to RIGHT, TOP to 
+% BOTTOM), higher frequency components come into the picture and the plot
+% becomes lighter and lighter due to these
+
+clear all
+close all
+X_original=zeros(10304,175);
+Xmean=zeros(10304,1);
+
+for i=1:35
+    a=strcat('s',num2str(i));
+    a=strcat(a,'/');
+    for j=1:5
+        b=strcat(a,num2str(j));
+        b=strcat(b,'.pgm');
+        y=imread(b);
+        y=double(y);
+        X_original(:,(5*(i-1)+j))=y(:); %Read the image vectors into the columns of this matrix
+        c=y(:);
+        Xmean=Xmean+c;
+    end
+end
+
+Xmean = Xmean/175;
+Xmeanmatrix = repmat(Xmean,1,175);
+
+X_meansubtracted = X_original - Xmeanmatrix; %Subtract mean from each of the image vectors
+
+L = X_meansubtracted.' * X_meansubtracted;
+k_values = [2; 10; 20; 50; 75; 100; 125; 150; 175];
+figure;
+for index=1:9
+    k=k_values(index);
+    [V_intermediate,D]=eigs(L,k);
+    V = X_meansubtracted * V_intermediate;
+    V = normc(V);         %We now have the normalised eigenspace of the covariance matrix.
+    alpha = V.' * X_meansubtracted(:,1); %alpha matrix stores the components for the 1st face
+    out = V*alpha;
+    out = out + Xmean;
+    out = reshape(out,112,92);
+    out=uint8(out);
+    subplot(3,3,index);
+    imshow(out);
+end
+
+%We now plot the eigenfaces for k=25
+[V_intermediate,D]=eigs(L,25);
+V = X_meansubtracted * V_intermediate;
+figure;
+
+for i=1:25
+    subplot(5,5,i);
+    imshow(reshape(mat2gray(V(:,i)),112,92));
+end
+
+
+figure;
+for i=1:25
+    subplot(5,5,i);
+    U=fft2(reshape((V(:,i)),112,92));
+    U=fftshift(U);
+    U=abs(U);
+    U=log(1+U);
+    U=mat2gray(U);
+    imshow(U);
+end
+##### SOURCE END #####
+--></body></html>

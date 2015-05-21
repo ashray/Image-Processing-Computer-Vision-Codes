@@ -1,0 +1,2 @@
+In order to run the code, the folders s1 through s40 and 01 through 39 need to be present in the same directory as the file "myDriver.m"
+The "images" folder is empty as this question does not need us to generate any images.

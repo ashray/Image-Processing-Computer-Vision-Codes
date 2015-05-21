@@ -1,0 +1,78 @@
+%% Q2-CS 663 Assignment 2 Bilateral filtering
+
+%% Code explanation
+% 3d convolution 
+% we create a 3d space with one more dimension(intensity).
+% since gaussian is separable the convolution will be separated out into
+% convolution over x, over y and then over Intensity dimension.
+% this 3d convolution is done once for noisy image and once for weights.
+% outptut of the convolution with noisy image is divided(point by point)
+% with the output from convolution with the weights.
+% could not vectorise the 'expansion of 2d space into 3d space'
+% 
+% The code employs resampling to conserve both MEMORY (Important) and TIME.
+% uses blockproc to implement resizing and stores 3D array in sparse matrix
+% before that
+
+%%
+
+function [filteredImage]=Q2(inputImage, sigmaSpace, sigmaIntensity, samplingFactor)
+	mean=[0 0 0];
+
+	sFilterSpace= 4*sigmaSpace/samplingFactor;%size of Filter
+	sFilterInt = 4*sigmaInt/samplingFactor;
+	
+	inputImage=normalise(inputImage,255);
+	
+	x=1:size(inputImage,2);
+	y=1:size(inputImage,1);
+	I=1:256;
+	
+	noisyImage=uint8(normalise(0.05*256*randn(length(inputImage))+inputImage,255));
+	DisplayImage(noisyImage);
+
+	spatioIntensitySpace=zeros(ceil(length(x)/samplingFactor),ceil(length(y)/samplingFactor),ceil(length(I)/samplingFactor));	
+	Indices2D = 1:length(x)*length(y);
+	
+	% Intensity Splitting 
+	Intensity
+	for i = 0:255
+		
+	
+	
+	% Resampling Section
+	for i = 0:(ceil(256/samplingFactor) - 1)
+		for j = 1:samplingFactor
+			if (i*samplingFactor + j) > length(I)
+				break;
+			end
+			
+		end
+	end
+	RelevantInds3D = Indices2D + single(noisyImage(Indices2D))*length(x)*length(y);
+	spatioIntensitySpace(RelevantInds3D)=noisyImage(Indices2D);
+
+	vertFiltered=single(imfilter(single(spatioIntensitySpace),reshape(fspecial('gaussian',[sFilterSpace 1],sigmaSpace),[sFilterSpace 1 1 ]),'conv'));
+	clear spatioIntensitySpace;
+	horiFiltered=single(imfilter(vertFiltered,reshape(fspecial('gaussian',[1 sFilterSpace],sigmaSpace),[1 sFilterSpace 1]),'conv'));
+	clear vertFiltered;
+	intenFiltered=single(imfilter(horiFiltered,reshape(fspecial('gaussian',[sFilterInt 1],sigmaIntensity),[1 1 sFilterInt]),'conv'));
+	clear horiFiltered;
+	%gaussFilter=mvnpdf(spatioIntensitySpace,mean,stdDeviation);	
+	
+	weightSpace=zeros(length(x),length(y),length(I));	
+	weightSpace(RelevantInds3D)=255;
+	
+	weightVFilt=single(imfilter(single(weightSpace),reshape(fspecial('gaussian',[sFilterSpace 1],sigmaSpace),[sFilterSpace 1 1 ]),'conv'));
+	clear weightSpace;
+	weightHFilt=single(imfilter(weightVFilt,reshape(fspecial('gaussian',[1 sFilterSpace],sigmaSpace),[1 sFilterSpace 1]),'conv'));
+	clear weightVFilt;
+	weightIFilt=single(imfilter(weightHFilt,reshape(fspecial('gaussian',[sFilterInt 1],sigmaIntensity),[1 1 sFilterInt]),'conv'));
+	clear weightHFilt;
+
+	filteredImage=zeros(size(noisyImage));
+	filteredImage(Indices2D)=intenFiltered(RelevantInds3D)./weightIFilt(RelevantInds3D);
+	
+	filteredImage=normalise(filteredImage,1.0);
+	DisplayImage(filteredImage);
+end

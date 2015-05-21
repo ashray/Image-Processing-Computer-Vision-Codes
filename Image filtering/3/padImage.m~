@@ -1,0 +1,13 @@
+%% Zero pad image
+% zero padding the image is useful in various border computation cases.
+% This code currently pads the input image with a fixed width border. The
+% code for a different size border for the width and the length of the
+% image is not yet implemented. Ideally if such parameters are not
+% metioned(in future code) then the code should automatically assume fixed
+% size border for both
+%%
+function [imageOut]=padImage(imageIn,border)
+    heightImage=size(ImageIn,1);
+    widthImage=size(ImageIn,2);
+    imageOut= 
+end
